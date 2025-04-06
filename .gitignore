@@ -1,0 +1,7 @@
+.env
+.DS_Store
+*.sqlite3
+**/__pycache__/
+.history
+**/supa/
+myvenv/
