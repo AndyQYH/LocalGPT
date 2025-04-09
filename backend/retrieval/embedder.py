@@ -37,7 +37,7 @@ class Embedder(ABC, BaseModel):
         return len(sample_embedding)
 
 
-class NVIDIAEmbedders(Embedder):
+class DocumentEmbedders(Embedder):
     name: str
     type: str
     embedder: Optional[Any] = None

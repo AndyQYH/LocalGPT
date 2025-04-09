@@ -51,7 +51,7 @@ def is_graph(image_path):
 
 @langchain_instrumentation_method_wrapper
 def process_image(cb_handler, image_path):
-    neva = LLMClient("ai-neva-22b", cb_handler=cb_handler)
+    neva = LLMClient("gemma3:4b", cb_handler=cb_handler)
     b64_string = get_b64_image(image_path)
     res = neva.multimodal_invoke(b64_string, creativity=0, quality=9, complexity=0, verbosity=9).content
     print(res)
@@ -61,16 +61,16 @@ def process_image(cb_handler, image_path):
 @langchain_instrumentation_method_wrapper
 def process_graph(cb_handler, image_path):
     # Call DePlot through the API
-    deplot = LLMClient("google/deplot")
+    granite = LLMClient("granite3.2-vision")
     b64_string = get_b64_image(image_path)
-    res = deplot.multimodal_invoke(b64_string)
-    deplot_description = res.content
+    res = granite.multimodal_invoke(b64_string)
+    granite_description = res.content
     # Accessing the model name environment variable
     settings = get_config()
-    mixtral = LLMClient(model_name=settings.llm.model_name, is_response_generator=True, cb_handler=cb_handler)
-    response = mixtral.chat_with_prompt(
-        system_prompt=get_prompts().get("deplot_summarization_prompt", ""),
-        prompt="Explain the following linearized table. " + deplot_description,
+    llama3 = LLMClient(model_name=settings.llm.model_name, is_response_generator=True, cb_handler=cb_handler)
+    response = llama3.chat_with_prompt(
+        system_prompt=get_prompts().get("granite_summarization_prompt", ""),
+        prompt="Explain the following image description extracted from a chart or table:\n" + granite_description,
     )
     full_response = ""
     for chunk in response:

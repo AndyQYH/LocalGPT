@@ -91,6 +91,7 @@ except Exception as e:
     logger.error(f"faiss import failed with error: {e}")
 
 from langchain.llms.base import LLM
+from langchain_ollama.embeddings import OllamaEmbeddings
 from langchain_core.documents.compressor import BaseDocumentCompressor
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import SimpleChatModel
@@ -196,7 +197,7 @@ def get_prompts() -> Dict:
 
     # default config taking from prompt.yaml
     default_config_path = os.path.join(
-        "RAG/examples/", os.environ.get("EXAMPLE_PATH", "basic_rag/llamaindex"), "prompt.yaml"
+        "backend", os.environ.get("EXAMPLE_PATH", ""), "prompt.yaml"
     )
     default_config = {}
     if Path(default_config_path).exists():
@@ -428,6 +429,13 @@ def get_embedding_model() -> Embeddings:
         )
         # Load in a specific embedding model
         return hf_embeddings
+    elif settings.embeddings.model_engine == "ollama":
+        # Model name can be updated using APP_EMBEDDINGS_MODELNAME
+        ollama_embeddings = OllamaEmbeddings(
+            model=settings.embeddings.model_name
+        )
+        # Load in a specific embedding model
+        return ollama_embeddings
     elif settings.embeddings.model_engine == "nvidia-ai-endpoints":
         # If URL set in APP_EMBEDDINGS_SERVERURL then Nvidia hosted model is used otherwise local NIM is used for inference
         if settings.embeddings.server_url:

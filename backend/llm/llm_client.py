@@ -29,8 +29,8 @@ from chain_server.utils import get_prompts
 class LLMClient:
     def __init__(
         self,
-        model_name="mixtral_8x7b",
-        model_type="NVIDIA",
+        model_name="llama3.1:8b",
+        model_type="OLLAMA",
         is_response_generator=False,
         cb_handler=BaseCallbackHandler,
         **kwargs,

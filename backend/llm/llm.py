@@ -17,8 +17,9 @@ import json
 
 import requests
 import torch
-from langchain_community.llms import HuggingFacePipeline
+from langchain_huggingface import HuggingFacePipeline
 from langchain_nvidia_ai_endpoints import ChatNVIDIA
+from langchain_ollama import ChatOllama
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
 from chain_server.utils import get_config, get_llm
@@ -59,24 +60,34 @@ class LocalLLM:
 
         self.llm = HuggingFacePipeline(pipeline=pipe)
 
+class OllamaLLM:
+    def __init__(self, model_name, **kwargs):
+        self.llm = ChatOllama(
+            model=model_name,
+            temperature=kwargs.get("temperature", 0.7),
+            top_p=kwargs.get("top_p", 0.95),
+        )
 
-def create_llm(model_name, model_type="NVIDIA", is_response_generator=False, **kwargs):
+
+def create_llm(model_name, model_type="OLLAMA", is_response_generator=False, **kwargs):
     # Use LLM to generate answer
     if model_type == "NVIDIA":
         model = NvidiaLLM(model_name, is_response_generator, **kwargs)
     elif model_type == "LOCAL":
         model = LocalLLM(model_name, **kwargs)
+    elif model_type == "OLLAMA":
+        model = OllamaLLM(model_name, **kwargs)
     else:
-        print("Error! Need model_name and model_type!")
+        print("Error! Need valid model_type! Options: NVIDIA, LOCAL, OLLAMA")
         exit()
 
     return model.llm
 
 
 if __name__ == "__main__":
-    llm = create_llm("gpt2", "LOCAL")
+    llm = create_llm("llama3.1:8b", "OLLAMA")
 
-    from langchain import LLMChain
+    # from langchain import LLMChain
     from langchain_core.output_parsers import StrOutputParser
     from langchain_core.prompts import ChatPromptTemplate
 

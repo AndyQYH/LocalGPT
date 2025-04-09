@@ -18,31 +18,55 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic import BaseModel
-from pymilvus import Collection, CollectionSchema, DataType, FieldSchema, connections, utility
+from langchain_core.vectorstores import VectorStore
+from langchain_core.documents import Document
+from typing import List
+from pydantic import BaseModel
+from abc import ABC, abstractmethod
+from langchain_community.vectorstores import Milvus
 
 
 class VectorClient(ABC, BaseModel):
-
-    hostname: str
-    port: str
-    collection_name: str
+    @abstractmethod
+    def search(self, query_vector: List[float], limit: int = 5):
+        pass
 
     @abstractmethod
-    def connect(self):
-        ...
+    def add_documents(self, documents: List[Document]):
+        pass
 
-    def disconnect(self):
-        ...
+class MilvusVectorClient(VectorClient):
+    host: str = "localhost"
+    port: str = "19530"
+    collection_name: str = "default"
+    embedding_function: Any = None  # Function to convert text -> embeddings
+    vectorstore: Any = None
 
-    @abstractmethod
-    def search(self, query_vectors, limit=5):
-        ...
+    def __init__(self, embedding_function, collection_name="default", host="localhost", port="19530"):
+        super().__init__(collection_name=collection_name, host=host, port=port, embedding_function=embedding_function)
+        self.vectorstore = Milvus(
+            embedding_function=embedding_function,
+            connection_args={"host": self.host, "port": self.port},
+            collection_name=collection_name,
+            auto_id = True
+        )
 
-    @abstractmethod
-    def update(self):
-        ...
+    def add_documents(self, documents: List[Document]):
+        self.vectorstore.add_documents(documents)
+
+    def search(self, query_vector: List[float], limit: int = 5):
+        results = self.vectorstore.similarity_search_by_vector(query_vector, k=limit)
+        concatdocs = ""
+        sources = {}
+        for idx, doc in enumerate(results):
+            content = doc.page_content
+            metadata = doc.metadata
+            concatdocs += f"[[DOCUMENT {idx}]]\n\n{content}\n\n"
+            sources[metadata.get("source", f"doc_{idx}")] = {"doc_content": content, "doc_metadata": metadata}
+        return concatdocs, sources
 
 
+'''
 class MilvusVectorClient(VectorClient):
 
     hostname: str = "milvus"
@@ -168,3 +192,4 @@ class MilvusVectorClient(VectorClient):
         self.vector_db.delete(expr)
         # Load the collection to make the deletion take effect
         self.vector_db.load()
+'''

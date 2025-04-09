@@ -36,6 +36,10 @@ from pymilvus.exceptions import MilvusException, MilvusUnavailableException
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 
 from chain_server.tracing import llamaindex_instrumentation_wrapper
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv("../.env")
 
 logging.basicConfig(level=os.environ.get('LOGLEVEL', 'INFO').upper())
 logger = logging.getLogger(__name__)
@@ -49,7 +53,7 @@ app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_credentials=False, allow_methods=["*"], allow_headers=["*"],
 )
 
-EXAMPLE_DIR = "backend"
+EXAMPLE_DIR = "../"
 
 
 class Message(BaseModel):
@@ -208,7 +212,7 @@ def import_example() -> None:
     """
 
     # path of the example directory, to check for chain implementation
-    file_location = os.path.join(EXAMPLE_DIR, os.environ.get("EXAMPLE_PATH", "basic_rag/llamaindex"))
+    file_location = os.path.join(EXAMPLE_DIR, os.environ.get("EXAMPLE_PATH", ""))
 
     # Walk through the directory to find the RAG chains and store it's class
     for root, dirs, files in os.walk(file_location):

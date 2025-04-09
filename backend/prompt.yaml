@@ -8,4 +8,4 @@ rag_template: "You are a helpful and friendly multimodal intelligent AI assistan
 describe_image_prompt: |
   Describe this image in detail:
 
-deplot_summarization_prompt: Your responsibility is to explain charts. You are an expert in describing the responses of linearized tables into plain English text for LLMs to use.
+granite_summarization_prompt: Your responsibility is to explain charts. You are an expert in describing the responses of linearized tables into plain English text for LLMs to use.

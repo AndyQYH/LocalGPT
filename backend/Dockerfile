@@ -28,7 +28,7 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN apt autoremove -y curl software-properties-common
 
 # Ensure python3 points to Python 3.10
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+# RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
 
 # Set environment variables needed for Text splitter
 RUN mkdir /tmp-data/; mkdir /tmp-data/nltk_data/
@@ -39,16 +39,16 @@ ENV HF_HOME=/tmp-data
 
 WORKDIR /app
 
-COPY ./chain_server/requirements.txt /app/chain_server/requirements.txt
+COPY ./requirements.txt /app/requirements.txt
 RUN pip3 install -r /app/chain_server/requirements.txt
 
 # Copy the rest of your application code into the image
 COPY . /app/backend
 
 # Install nltk packages to avoid runtime download
-RUN python3 -m nltk.downloader averaged_perceptron_tagger
-RUN python3 -m nltk.downloader stopwords
-RUN python3 -m nltk.downloader punkt
+RUN python3.10 -m nltk.downloader averaged_perceptron_tagger
+RUN python3.10 -m nltk.downloader stopwords
+RUN python3.10 -m nltk.downloader punkt
 # RUN python3.10 -c "from sentence_transformers import SentenceTransformer; model = SentenceTransformer('Snowflake/snowflake-arctic-embed-l'); model.save('/tmp-data')"
 
 RUN if [ -f "/app/${EXAMPLE_PATH}/requirements.txt" ] ; then \

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """The definition of the application configuration."""
-from configuration_wizard import ConfigWizard, configclass, configfield
+from chain_server.configuration_wizard import ConfigWizard, configclass, configfield
 
 
 @configclass
@@ -60,12 +60,12 @@ class LLMConfig(ConfigWizard):
     )
     model_engine: str = configfield(
         "model_engine",
-        default="nvidia-ai-endpoints",
-        help_txt="The server type of the hosted model. Allowed values are nvidia-ai-endpoints",
+        default="ollama",
+        help_txt="The server type of the hosted model. Allowed values are ollama, nvidia-ai-endpoints",
     )
     model_name_pandas_ai: str = configfield(
         "model_name_pandas_ai",
-        default="ai-mixtral-8x7b-instruct",
+        default="llama3.1:8b",
         help_txt="The name of the ai catalog model to be used with PandasAI agent",
     )
 
@@ -99,12 +99,12 @@ class EmbeddingConfig(ConfigWizard):
     """
 
     model_name: str = configfield(
-        "model_name", default="snowflake/arctic-embed-l", help_txt="The name of huggingface embedding model.",
+        "model_name", default="snowflake-arctic-embed2", help_txt="The name of huggingface embedding model.",
     )
     model_engine: str = configfield(
         "model_engine",
-        default="nvidia-ai-endpoints",
-        help_txt="The server type of the hosted model. Allowed values are hugginface",
+        default="ollama",
+        help_txt="The server type of the hosted model. Allowed values are hugginface, ollama, and nvidia-ai-endpoints",
     )
     dimensions: int = configfield(
         "dimensions",
