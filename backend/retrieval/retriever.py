@@ -28,5 +28,6 @@ class Retriever(BaseModel):
         if limit is None:
             limit = self.search_limit
         query_vector = self.embedder.embed_query(text)
-        concatdocs, sources = self.vector_client.search([query_vector], limit)
+        print(type(query_vector))
+        concatdocs, sources = self.vector_client.search(query_vector, limit)
         return concatdocs, sources

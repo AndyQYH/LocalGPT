@@ -56,7 +56,7 @@ class LLMConfig(ConfigWizard):
         "server_url", default="", help_txt="The location of the Triton server hosting the llm model.",
     )
     model_name: str = configfield(
-        "model_name", default="ensemble", help_txt="The name of the hosted model.",
+        "model_name", default="llama3.1:8b", help_txt="The name of the hosted model.",
     )
     model_engine: str = configfield(
         "model_engine",
@@ -80,7 +80,7 @@ class TextSplitterConfig(ConfigWizard):
 
     model_name: str = configfield(
         "model_name",
-        default="Snowflake/snowflake-arctic-embed-l",
+        default="snowflake-arctic-embed2:latest",
         help_txt="The name of Sentence Transformer model used for SentenceTransformer TextSplitter.",
     )
     chunk_size: int = configfield(
@@ -99,7 +99,7 @@ class EmbeddingConfig(ConfigWizard):
     """
 
     model_name: str = configfield(
-        "model_name", default="snowflake-arctic-embed2", help_txt="The name of huggingface embedding model.",
+        "model_name", default="snowflake-arctic-embed2:latest", help_txt="The name of huggingface embedding model.",
     )
     model_engine: str = configfield(
         "model_engine",

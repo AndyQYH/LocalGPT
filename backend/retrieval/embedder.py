@@ -21,6 +21,8 @@ from pydantic import BaseModel
 
 from chain_server.utils import get_embedding_model
 
+import numpy as np
+
 
 class Embedder(ABC, BaseModel):
     @abstractmethod
@@ -35,6 +37,11 @@ class Embedder(ABC, BaseModel):
         sample_text = "This is a sample text."
         sample_embedding = self.embedder.embed_query(sample_text)
         return len(sample_embedding)
+    
+    def sanitize_vector(self, vector):
+        if isinstance(vector, np.ndarray):
+            return vector.astype(float).tolist()
+        return list(map(float, vector))
 
 
 class DocumentEmbedders(Embedder):
@@ -47,7 +54,9 @@ class DocumentEmbedders(Embedder):
         self.embedder = get_embedding_model()
 
     def embed_query(self, text):
-        return self.embedder.embed_query(text)
+        raw = self.embedder.embed_query(text)
+        return self.sanitize_vector(raw)
+
 
     def embed_documents(self, documents, batch_size=10):
         output = []

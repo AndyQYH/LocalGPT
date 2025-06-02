@@ -65,6 +65,11 @@ def split_text(documents):
     split_docs = text_splitter.split_documents(documents)
     return split_docs
 
+def normalize_metadata(doc):
+    required_keys = ["x1", "y1", "x2", "x3", "source", "image", "caption", "type", "page_num", "filename"]
+    for key in required_keys:
+        doc.metadata.setdefault(key, "" if key != "page_num" else -1)
+
 
 def update_vectorstore(file_path, vector_client, embedder, config_name):
     """Generates word embeddings for documents and updates the Milvus collection."""
@@ -78,10 +83,13 @@ def update_vectorstore(file_path, vector_client, embedder, config_name):
     # load and split documents
     raw_documents = load_documents(file_path)
     documents = split_text(raw_documents)
+    print(documents)
+    
 
     # Adding file name to the metadata
     for document in documents:
         document.metadata["filename"] = os.path.basename(file_path)
+        normalize_metadata(document)
 
     logger.info("[Step 3/4] Inserting documents into the vector store...")
     # Batch insert into Milvus collection

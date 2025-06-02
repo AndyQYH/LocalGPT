@@ -74,7 +74,7 @@ class MultimodalRAG(BaseExample):
             )
 
         try:
-            _path = filepath
+            _path = filepath + '/' + filename
             ds = get_vectorstore(docstore, document_embedder)
             update_vectorstore(_path, ds, document_embedder, os.getenv('COLLECTION_NAME', "vector_db"))
         except Exception as e:

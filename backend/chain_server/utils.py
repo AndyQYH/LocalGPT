@@ -82,6 +82,7 @@ except Exception as e:
 try:
     from langchain_community.docstore.in_memory import InMemoryDocstore
     from langchain_community.vectorstores import Milvus, PGVector
+    from langchain_milvus import Milvus as LangchainMilvus
 except Exception as e:
     logger.error(f"Langchain community import failed with error: {e}")
 
@@ -319,13 +320,14 @@ def create_vectorstore_langchain(document_embedder: "Embeddings", collection_nam
             collection_name = os.getenv('COLLECTION_NAME', "vector_db")
         logger.info(f"Using milvus collection: {collection_name}")
         url = urlparse(config.vector_store.url)
-        vectorstore = Milvus(
-            document_embedder,
+        vectorstore = LangchainMilvus(
+            embedding_function=document_embedder,
             connection_args={"host": url.hostname, "port": url.port},
             collection_name=collection_name,
             index_params={"index_type": config.vector_store.index_type, "metric_type": "L2", "nlist": config.vector_store.nlist},
             search_params={"nprobe": config.vector_store.nprobe},
-            auto_id = True
+            auto_id = True,
+            drop_old= True
         )
     else:
         raise ValueError(f"{config.vector_store.name} vector database is not supported")

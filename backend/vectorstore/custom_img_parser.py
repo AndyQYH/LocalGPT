@@ -45,10 +45,10 @@ def process_img_file(img_path):
         image_description = process_image(img_path)
     caption = image_description + f"This image contains text: {ocr_text}"
     image_metadata = {
-        "x1": 0,
-        "y1": 0,
-        "x2": 0,
-        "x3": 0,
+        "x1": int(0),
+        "y1": int(0),
+        "x2": int(0),
+        "x3": int(0),
         "source": f"{os.path.basename(img_path)}",
         "image": img_path,
         "caption": caption,

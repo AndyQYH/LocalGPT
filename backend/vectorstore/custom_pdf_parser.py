@@ -51,7 +51,7 @@ def is_graph(image_path):
 
 @langchain_instrumentation_method_wrapper
 def process_image(cb_handler, image_path):
-    neva = LLMClient("gemma3:4b", cb_handler=cb_handler)
+    neva = LLMClient("llama3.2-vision:11b", cb_handler=cb_handler)
     b64_string = get_b64_image(image_path)
     res = neva.multimodal_invoke(b64_string, creativity=0, quality=9, complexity=0, verbosity=9).content
     print(res)
@@ -61,7 +61,7 @@ def process_image(cb_handler, image_path):
 @langchain_instrumentation_method_wrapper
 def process_graph(cb_handler, image_path):
     # Call DePlot through the API
-    granite = LLMClient("granite3.2-vision")
+    granite = LLMClient("granite3.2-vision:2b")
     b64_string = get_b64_image(image_path)
     res = granite.multimodal_invoke(b64_string)
     granite_description = res.content
@@ -157,7 +157,7 @@ def process_text_blocks(text_blocks):
 def parse_via_ocr(filename, page, pagenum):
     ocr_docs = []
     ocr_image = page.to_image(resolution=109)
-    imgrefpath = os.path.join("/tmp-data", "multimodal/ocr_references")
+    imgrefpath = os.path.join("/tmp", "multimodal/ocr_references")
     if not os.path.exists(imgrefpath):
         os.makedirs(imgrefpath)
     image_path = os.path.join(imgrefpath, f"file{os.path.basename(filename).split('.')[0]}-page{pagenum}.png")
@@ -194,7 +194,7 @@ def parse_all_tables(filename, page, pagenum, text_blocks, ongoing_tables):
     if tables:
         for table_num, table in enumerate(tables, start=1):
             try:
-                tablerefdir = os.path.join("/tmp-data", "vectorstore/table_references")
+                tablerefdir = os.path.join("/tmp", "vectorstore/table_references")
                 if not os.path.exists(tablerefdir):
                     os.makedirs(tablerefdir)
                 df_xlsx_path = os.path.join(
@@ -222,10 +222,10 @@ def parse_all_tables(filename, page, pagenum, text_blocks, ongoing_tables):
                         caption = " ".join(table_df.columns)
                     table_data_text = stringify_table(table_df_text)
                     table_metadata = {
-                        "x1": 0,
-                        "y1": 0,
-                        "x2": 0,
-                        "x3": 0,
+                        "x1": int(0),
+                        "y1": int(0),
+                        "x2": int(0),
+                        "x3": int(0),
                         "source": f"{os.path.basename(filename)}",
                         "dataframe": df_xlsx_path,
                         "image": table_img_path,
@@ -265,7 +265,7 @@ def parse_all_images(filename, page, pagenum, text_blocks):
         # Extract and save the image
         page_crop = page.crop(image_bbox, strict=False)
         image_data = page_crop.to_image(resolution=109)
-        imgrefpath = os.path.join("/tmp-data", "multimodal/image_references")
+        imgrefpath = os.path.join("/tmp", "multimodal/image_references")
         if not os.path.exists(imgrefpath):
             os.makedirs(imgrefpath)
         image_path = os.path.join(
@@ -291,10 +291,10 @@ def parse_all_images(filename, page, pagenum, text_blocks):
             continue
 
         image_metadata = {
-            "x1": 0,
-            "y1": 0,
-            "x2": 0,
-            "x3": 0,
+            "x1": int(0),
+            "y1": int(0),
+            "x2": int(0),
+            "x3": int(0),
             "source": f"{os.path.basename(filename)}",
             "image": image_path,
             "caption": caption,
@@ -352,11 +352,12 @@ def get_pdf_documents(filepath):
                 heading_bbox = (heading_block['x0'], heading_block['y0'], heading_block['x1'], heading_block['y1'])
                 # Check if the heading or its content overlaps with table or image bounding boxes
                 if not any(is_bbox_overlapping(heading_bbox, table_bbox) for table_bbox in table_bboxes):
-                    bbox = {"x1": heading_bbox[0], "y1": heading_bbox[1], "x2": heading_bbox[2], "x3": heading_bbox[3]}
+                    bbox = {"x1": int(heading_bbox[0]), "y1": int(heading_bbox[1]), "x2": int(heading_bbox[2]), "x3": int(heading_bbox[3])}
                     text_doc = Document(
                         page_content=f"{heading_block['text']}\n{content}",
                         metadata={
                             **bbox,
+                            "image": "",
                             "type": "text",
                             "page_num": page_num,
                             "source": f"{os.path.basename(filepath)}",

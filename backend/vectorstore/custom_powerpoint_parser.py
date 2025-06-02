@@ -102,10 +102,10 @@ def process_ppt_file(ppt_path):
             image_description = process_graph(image_path)
         caption = slide_text + image_description + notes
         image_metadata = {
-            "x1": 0,
-            "y1": 0,
-            "x2": 0,
-            "x3": 0,
+            "x1": int(0),
+            "y1": int(0),
+            "x2": int(0),
+            "x3": int(0),
             "source": f"{os.path.basename(ppt_path)}",
             "image": image_path,
             "caption": caption,

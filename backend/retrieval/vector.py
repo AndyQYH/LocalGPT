@@ -24,6 +24,7 @@ from typing import List
 from pydantic import BaseModel
 from abc import ABC, abstractmethod
 from langchain_community.vectorstores import Milvus
+from langchain_milvus import Milvus as LangchainMilvus
 
 
 class VectorClient(ABC, BaseModel):
@@ -44,14 +45,19 @@ class MilvusVectorClient(VectorClient):
 
     def __init__(self, embedding_function, collection_name="default", host="localhost", port="19530"):
         super().__init__(collection_name=collection_name, host=host, port=port, embedding_function=embedding_function)
-        self.vectorstore = Milvus(
-            embedding_function=embedding_function,
+        self.vectorstore = LangchainMilvus(
+            embedding_function=self.embedding_function,
+            collection_name=self.collection_name,
             connection_args={"host": self.host, "port": self.port},
-            collection_name=collection_name,
-            auto_id = True
+            index_params={"metric_type": "L2", "index_type": "IVF_FLAT", "params": {"nlist": 128}},
+            drop_old=True,
+            auto_id=True
         )
 
     def add_documents(self, documents: List[Document]):
+        for doc in documents:
+            if "metadata" not in doc.metadata:
+                doc.metadata = {"metadata": doc.metadata}
         self.vectorstore.add_documents(documents)
 
     def search(self, query_vector: List[float], limit: int = 5):
